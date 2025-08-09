@@ -38,3 +38,65 @@ The system automatically synchronizes files between specified *source* and *targ
   - Uses **low-level I/O** (`open`, `read`, `write`, `close`) only.
 
 ---
+### Synchronization Logic
+1. On startup, `nfs_manager`:
+ - Loads initial sync pairs from `config_file`.
+ - Creates worker thread pool.
+ - Connects to each source `nfs_client` to get file lists (`LIST`).
+ - Queues sync tasks in the buffer.
+
+2. Worker threads:
+ - Dequeue one task at a time.
+ - Connect to source `nfs_client` to `PULL` file.
+ - Stream chunks to target `nfs_client` using `PUSH`.
+ - Log both pull and push results.
+
+3. Commands from `nfs_console` are processed live:
+ - `add <src> <tgt>` – Queue all files for sync.
+ - `cancel <src>` – Remove pending tasks for that source.
+ - `shutdown` – Gracefully finish active + queued tasks and stop.
+---
+## Compilation
+
+### Run:
+```bash
+make
+```
+###Execution
+ 1. Start nfs_client on both source & target hosts <br>
+ ./nfs_client -p 8000 <br>
+./nfs_client -p 8080 <br>
+2. Start nfs_manager <br>
+./nfs_manager -l manager.log -c config.txt -n 5 -p 8035 -b 10 <br>
+Arguments: <br>
+-- -l – Manager log file.
+-- -c – Config file with sync pairs.
+-- -n – Max worker threads.
+-- -p – Port for console commands.
+-- -b – Task queue capacity.
+
+Example config.txt <br>
+/src1@192.168.1.10:8000 /dst1@192.168.1.20:8080
+
+3. Start nfs_console <br>
+  ./nfs_console -l console.log -h 127.0.0.1 -p 8035
+
+4. Commanands (example) <br>
+add /src1@192.168.1.10:8000 /dst1@192.168.1.20:8080 <br>
+cancel /src1@192.168.1.10:8000 <br>
+shutdown <br>
+
+###Logging Format
+- Manager Log <br>
+[TIMESTAMP] [SRC] [DST] [THREAD_ID] [PULL|PUSH] [SUCCESS|ERROR] [DETAILS] <br>
+- Console Log <br> 
+[TIMESTAMP] Command add /src@ip:port -> /dst@ip:port <br>
+
+###Assumptions & Notes
+-- Directories are flat (no subdirectories).
+-- Paths in config_file are relative to the running nfs_client working directory.
+-- Existing target files are overwritten without timestamp checks.
+-- All socket communication uses TCP.
+-- No external sync tools (scp, rsync) are used — only low-level syscalls.
+-- Log files are cleared on startup.
+
