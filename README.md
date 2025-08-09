@@ -69,12 +69,12 @@ make
 2. Start nfs_manager <br>
 ./nfs_manager -l manager.log -c config.txt -n 5 -p 8035 -b 10 <br>
 Arguments: <br>
--- -l – Manager log file.
--- -c – Config file with sync pairs.
--- -n – Max worker threads.
--- -p – Port for console commands.
--- -b – Task queue capacity.
-
+- -l – Manager log file.
+- -c – Config file with sync pairs.
+- -n – Max worker threads.
+- -p – Port for console commands.
+- -b – Task queue capacity. <br>
+<br>
 Example config.txt <br>
 /src1@192.168.1.10:8000 /dst1@192.168.1.20:8080
 
@@ -93,10 +93,10 @@ shutdown <br>
 [TIMESTAMP] Command add /src@ip:port -> /dst@ip:port <br>
 
 ### Assumptions & Notes
--- Directories are flat (no subdirectories).
--- Paths in config_file are relative to the running nfs_client working directory.
--- Existing target files are overwritten without timestamp checks.
--- All socket communication uses TCP.
--- No external sync tools (scp, rsync) are used — only low-level syscalls.
--- Log files are cleared on startup.
+- Directories are flat (no subdirectories).
+- Paths in config_file are relative to the running nfs_client working directory.
+- Existing target files are overwritten without timestamp checks.
+- All socket communication uses TCP.
+- No external sync tools (scp, rsync) are used — only low-level syscalls.
+- Log files are cleared on startup.
 
