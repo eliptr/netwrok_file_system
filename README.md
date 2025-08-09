@@ -62,7 +62,7 @@ The system automatically synchronizes files between specified *source* and *targ
 ```bash
 make
 ```
-###Execution
+### Execution
  1. Start nfs_client on both source & target hosts <br>
  ./nfs_client -p 8000 <br>
 ./nfs_client -p 8080 <br>
@@ -86,13 +86,13 @@ add /src1@192.168.1.10:8000 /dst1@192.168.1.20:8080 <br>
 cancel /src1@192.168.1.10:8000 <br>
 shutdown <br>
 
-###Logging Format
+### Logging Format
 - Manager Log <br>
 [TIMESTAMP] [SRC] [DST] [THREAD_ID] [PULL|PUSH] [SUCCESS|ERROR] [DETAILS] <br>
 - Console Log <br> 
 [TIMESTAMP] Command add /src@ip:port -> /dst@ip:port <br>
 
-###Assumptions & Notes
+### Assumptions & Notes
 -- Directories are flat (no subdirectories).
 -- Paths in config_file are relative to the running nfs_client working directory.
 -- Existing target files are overwritten without timestamp checks.
